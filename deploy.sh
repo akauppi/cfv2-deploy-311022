@@ -25,7 +25,7 @@ fi
 #
 [[ -d .state/configstore && -f .state/.firebaserc ]] || ( >&2 echo "INTERNAL ERROR: Missing '.state'"; false )
 
-touch tmp/firebase-debug.log &&
+touch firebase-debug.log &&
   docker compose run --rm deploy-backend
 
 #---

@@ -74,7 +74,7 @@ services:
       #     Error: EBUSY: resource busy or locked, unlink '/work/firebase-debug.log'
       #   <<
       #
-      - ./tmp/firebase-debug.log:/work/firebase-debug.log:delegated
+      - ./firebase-debug.log:/work/firebase-debug.log:delegated
 
     working_dir: /work
     command: sh -c '

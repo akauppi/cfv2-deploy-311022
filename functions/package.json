@@ -6,13 +6,6 @@
     "node": "16"
   },
   "dependencies": {
-    "firebase-admin": "^11.2.0",
     "firebase-functions": "^4.0.1"
-  },
-  "//": {
-    "engines.node": [
-      "Firebase emulators require the field to be plain '16' (not e.g. '>= 16'). In development, testing and CI, we run",
-      "it under DC, using Node 18 (causes a warning but works)."
-    ]
   }
 }

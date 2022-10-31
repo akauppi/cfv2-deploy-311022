@@ -1,3 +1,5 @@
 /tmp/
 /.state/
 node_modules/
+
+/firebase-debug.log

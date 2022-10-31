@@ -32,7 +32,7 @@ const abc = onSchedule({
   schedule: "every 5 minutes",
   region: region_v2,
 
-  secrets: ["METRICS_API_KEY"],     // tbd. HOW TO USE SUCH A SECRET??
+  //secrets: ["METRICS_API_KEY"],     // tbd. HOW TO USE SUCH A SECRET??
 
   // Note: you can define 'cpu: "gcf_gen1"' and get the "Cloud Functions generation 1" behaviour (no parallelism,
   //    fractional CPU). Or we can be more specific.
@@ -41,7 +41,6 @@ const abc = onSchedule({
 
   memory: '512MiB',   // "A minimum of 0.5 CPU is needed to set a memory limit greater than 512MiB."
                       // "A minimum of 1 CPU is needed to set a memory limit greater than 1GiB."
-
   maxInstances: 1,
   concurrency: 1
 
@@ -51,9 +50,9 @@ const abc = onSchedule({
   //    -> https://cloud.google.com/run/docs/configuring/cpu
 
   }, async data => {
-
-  console.log("!!! RUNTIME:", process.env);
-});
+    console.log("!!! RUNTIME:", process.env);
+  }
+);
 
 export {
   abc

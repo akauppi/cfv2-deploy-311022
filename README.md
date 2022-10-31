@@ -122,8 +122,6 @@ It may be rare for people to deploy from a sandbox, but it's not an unreasonable
 Normally, deployments are done in CI/CD also for this author (and this issue doesn't concern that). In this case, it's a question about onboarding new users to a repo, so they can be up and running as early as possible - doing first deployments without needing to set up CI/CD for it.
 
 
-<!--
 ---
 
-There's a second issue mentioned in this repo. Proceed to [PROBLEM 2](./PROBLEM-2.md).
--->
+With this fixed :), let's proceed to [PROBLEM 2](./PROBLEM-2.md).

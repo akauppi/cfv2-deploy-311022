@@ -22,3 +22,5 @@ const reallyHaveDatabaseURL = (!EMULATION || process.env["FIREBASE_DATABASE_EMUL
 // abc
 //
 //export const abc = !EMULATION && await import("./abc.js").then( mod => mod.abc() );
+export { abc } from './abc.js'
+
