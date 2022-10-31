@@ -184,6 +184,7 @@ const region_v2 = "europe-west2"; // "europe-north1";
   // ---            ---
   // europe-west2:  ok!
   // europe-north1: fails
+  // europe-west4:  fails
 
 export {
   EMULATION,

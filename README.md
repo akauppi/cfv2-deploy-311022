@@ -2,13 +2,11 @@
 
 Firebase "v2" Cloud Functions are in public preview (Oct 2022). This is a repo to try to make a scheduled function deploy, from within Docker Compose.
 
+<!--
 Bugs noticed:
 
 - ["[Beta] `Cannot read properties of undefined (reading 'service')`, deploying a scheduled function (v2)"](https://github.com/firebase/firebase-functions/issues/1293)
-
-- Not reported:
-   - Process not exiting nicely, if `firebase-debug.log` is mapped, in Docker Compose. Gives `Error: An unexpected error has occurred.`
- 
+--> 
 
 ## Requirements
 

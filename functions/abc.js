@@ -3,12 +3,11 @@
 */
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 
-//import { defineString, defineSecret } from 'firebase-functions/params'
+import { defineString } from 'firebase-functions/params'
 
 // These are set at (first) deployment; need '.value()' to be accessed within runtime load.
 //
-//const confPromUserId = defineString('PROM_USER_ID', { description: 'Prometheus user id'});
-//const confMetricsApiKey = defineSecret('METRICS_API_KEY');    // no description for secrets?? tbd.
+const confA = defineString('A', { description: 'A something'});
 
 import { region_v2 } from './config.js'
 
@@ -51,6 +50,8 @@ const abc = onSchedule({
 
   }, async data => {
     console.log("!!! RUNTIME:", process.env);
+
+    console.log("!!!", { confA: confA.value() });
   }
 );
 
