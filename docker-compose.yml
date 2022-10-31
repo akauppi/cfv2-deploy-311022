@@ -1,0 +1,83 @@
+#
+# docker-compose.yml
+#
+name: 8788e9af
+services:
+  firebase-cli:
+    build:
+      context: ./dc.firebase-tools/
+      target: firebase-cli
+      args:
+        - FIREBASE_TOOLS_VERSION=11.15.0
+
+  # Let the user authenticate (via a host-side browser session) and select the right Firebase deployment project.
+  #
+  # Note:
+  #   This needs to be 'run' (not started as a service): Firebase needs an interactive terminal for project selection.
+  #
+  # Once authenticated, the auth information is stored in: 
+  #   '.state/configstore/firebase-tools.json'
+  #
+  deploy-auth:
+    extends:
+      service: firebase-cli
+    ports:
+      - "9005:9005"   # needed by the auth dance
+    volumes:
+      #-- Output
+      #
+      # Firebase CLI saves the login information in '/root/.config/configstore/firebase-tools.json'.
+      # It also creates '/root/.config/configstore/update-notifier-firebase-tools.json'.
+      #
+      - ./.state/configstore:/root/.config/configstore:rw
+      - ./.state/.captured.sdkconfig:/work/.captured:delegated
+      - ./.state/.firebaserc:/work/.firebaserc:delegated
+
+    working_dir: /work
+    command: sh -c '
+      echo "{}" > firebase.json &&
+      firebase login &&
+
+      firebase use --add
+      '
+      #((firebase apps:sdkconfig > .captured) ||
+      #(cat >&2 .captured && false)
+      #)
+        # Note: The above acrobatics ('|| (cat ...)') is needed to bring Firebase CLI's error message (11.0.1) to
+        #     the developer's terminal. It writes errors to 'stdout'.
+        #
+        #     Note 2: In https://github.com/firebase/firebase-tools/issues/3227 @samstern writes:
+        #             "Without [the '--json'] flag the CLI output is not part of our API and you can change it at will, parsing it is not something we explicitly guarantee."
+
+    profiles: ['manual']
+
+  # Usage:
+  #   <<
+  #     $ docker compose run --rm deploy-backend
+  #   <<
+  #
+  deploy-backend:
+    extends:
+      service: firebase-cli
+    volumes:
+      #-- RO
+      - ./firebase.json:/work/firebase.json:ro
+      - ./functions:/work/functions:ro
+      #-- other
+      - ./.state/.firebaserc:/work/.firebaserc:ro
+      # Note: 'configstore' needs to be writable for 'firebase deploy' to not hick up (though no changes are anticipated).
+      - ./.state/configstore:/root/.config/configstore:rw
+
+      #-- debugging help
+      # NOTE! Enabling this line causes an ERROR at the end of the deployment (Firebase CLI 11.15.0):
+      #   <<
+      #     Error: EBUSY: resource busy or locked, unlink '/work/firebase-debug.log'
+      #   <<
+      #
+      - ./tmp/firebase-debug.log:/work/firebase-debug.log:delegated
+
+    working_dir: /work
+    command: sh -c '
+      firebase deploy --only functions
+      '
+    profiles: ['manual']
