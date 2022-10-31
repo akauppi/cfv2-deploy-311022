@@ -179,16 +179,11 @@ function fail_at_load(msg) { throw new Error(msg) }
 // ..weird, and maybe due to Firebase having been a regionless platform in its early life. Who knows...
 //
 const region_v2 = "europe-west2"; // "europe-north1";
-  //
-  // Note: "europe-west2" is NOT in the supported list of Cloud Function (v2) locations [x], but deployment seems to
-  //      succeed, nonetheless...
-  //
-  //      [x]: "Currently available Cloud Functions locations"
-  //          -> https://firebase.google.com/docs/functions/beta#currently_available_locations
 
   // location       success?
   // ---            ---
   // europe-west2:  ok!
+  // europe-north1: fails
 
 export {
   EMULATION,

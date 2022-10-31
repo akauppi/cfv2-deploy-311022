@@ -32,7 +32,7 @@ const abc = onSchedule({
   schedule: "every 5 minutes",
   region: region_v2,
 
-  //secrets: ["METRICS_API_KEY"],     // tbd. HOW TO USE SUCH A SECRET??
+  //secrets: ["ABC"],     // seen as 'process.env["ABC"]'
 
   // Note: you can define 'cpu: "gcf_gen1"' and get the "Cloud Functions generation 1" behaviour (no parallelism,
   //    fractional CPU). Or we can be more specific.

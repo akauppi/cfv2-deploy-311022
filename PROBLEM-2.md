@@ -2,6 +2,18 @@
 
 The `abc` scheduled function is enabled and we try to deploy it.
 
+**This succeeds** in region `europe-west2` but does not in region `europe-north1`.
+
+Based on [Cloud Functions Locations](https://cloud.google.com/functions/docs/locations), all regions (31-Oct-22) support "2nd gen" (`europe-north1` and `europe-west4` only support it).
+
+**Expectation:**
+
+- I can deploy a function to any of the listed regions
+
+**Actual**
+
+- Deployment to `europe-north1` fails.
+
 ## Preparation
 
 - Do the steps in the main `README`.
@@ -12,8 +24,52 @@ The `abc` scheduled function is enabled and we try to deploy it.
 
       If there is an instance, delete it.
 
+- See that this line is enabled in `functions/index.js`:
 
-## Steps
+   ```
+   export { abc } from './abc.js'
+   ```
+
+- See this line is disabled in `functions/abc.js`:
+
+   ```
+   //secrets: ["ABC"],   
+   ```
+   
+   >Alternatively, you can manually create the secret `ABC`, in GCP Console.
+
+- See that deployment is to `europe-west2` (`functions/config.js`):
+
+   ```
+   const region_v2 = "europe-west2";
+   ```
+
+
+## Steps (that pass)
+
+```
+$ ./deploy
+...
+i  functions: cleaning up build files...
+
+✔  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/abc-3011/overview
+
+Error: An unexpected error has occurred.
+```
+
+The deploy should succeed for `europe-west2`. Ignore the `An unexpected error has occurred` at the end (it's the DC mapping problem).
+
+## Steps (that fail)
+
+- Delete the function in Firebase Console (for consistency).
+
+- Change the region to `europe-north1` (`functions/config.js`):
+
+   ```
+   const region_v2 = "europe-north1";
+   ```
 
 ```
 $ ./deploy
@@ -28,41 +84,26 @@ i  functions: cleaning up build files...
 Error: There was an error deploying functions
 ```
 
-The error message is clear, but the developers may expect `firebase deploy` to make such access rights enabling, automatically. This author thinks it happens for other access rights.
-
 
 ### Expected
 
-- I would see a line such that:
+Since [1] states that all regions support Cloud Functions v2, I would expect to be able to deploy to any region.
 
-   ```
-   functions: IAM role `cloudscheduler.jobs.update` added to [...]
-   ```
-   
-- ...and deployment would succeed
+`[1]`: [Cloud Functions Locations](https://cloud.google.com/functions/docs/locations) (GCP docs)
+
 
 ### Actual
 
-(above error message)
+Deployment to `europe-north1` gives the above error message.
 
-### Work-around
-
-- GCP console > (project) > `IAM & Admin` > Principle `4569...-compute@developer.gserviceaccount.com` ("Default compute service account") > `Edit principle`
-
-   >![](.images/p2-which-role.png)
-
-   >Hmm.. not so easy to know which one is `cloudscheduler.jobs.update`
-
-Actually, based on the 403 error message, I don't know, how I can correct the situation.
-
-= likely there's a manual work-around, but it's not immediately obvious to an engineer working in the Firebase knowledge level.
-
->Tried that it's not region specific. `"europe-west"` gives the same.
-
+>Also `europe-west4` behaves the same. These are the two regions with ony CF v2 support.
 
 ## Why this matters?
 
-The developer experience should be consistent. Part of Firebase brand promise is that we need to steer less technical details than if working on GCP, directly.
+It's likely just a glitch in the system.
 
-`firebase deploy` does this, for many access rights. For consistency, I hope the intention is that it handles things in all cases. Of course, there's no written commitment to this that I know of. Just "it seems to do things for me" - which I feel is the right way for initialization / deployments.
+Since one can deploy to at least some region, the trouble for a developer is not big. Unless they start following the guidance in the error message, setting up IAM permissions manually - without realizing that for some other region, the deploy would just have worked!
+
+Anyways, hope this gets fixed.
+
 
