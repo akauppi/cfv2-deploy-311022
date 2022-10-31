@@ -1,47 +1,68 @@
-# Problem #2 (unrelated)
+# Problem #2
 
-In this case, the `abc` scheduled function is enabled and we try to deploy it.
+The `abc` scheduled function is enabled and we try to deploy it.
 
-## Requirements
+## Preparation
 
-Same as in `master` branch's `README`.
+- Do the steps in the main `README`.
+
+- In Firebase Console (online), make sure there is no existing version of `abc` function:
+
+   - [Firebase Console](https://console.firebase.google.com) > (project) > `Functions`
+
+      If there is an instance, delete it.
 
 
 ## Steps
 
 ```
 $ ./deploy
+...
+i  functions: creating Node.js 16 function abc(europe-north1)...
+HTTP Error: 403, The principal (user or service account) lacks IAM permission "cloudscheduler.jobs.update" for the resource "projects/abc-3011/locations/europe-north1/jobs/firebase-schedule-abc-europe-north1" (or the resource may not exist).
+
+Functions deploy had errors with the following functions:
+	abc(europe-north1)
+i  functions: cleaning up build files...
+
+Error: There was an error deploying functions
 ```
 
-```
-$ tail -n 20 firebase-debug.log
-...
-[debug] [2022-10-31T06:20:29.887Z] TypeError: Cannot read properties of undefined (reading 'service')
-    at /usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/functions/backend.js:198:113
-    at Array.map (<anonymous>)
-    at loadExistingBackend (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/functions/backend.js:198:69)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async Object.existingBackend (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/functions/backend.js:174:9)
-    at async prepare (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/functions/prepare.js:138:115)
-    at async chain (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/index.js:35:9)
-    at async deploy (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/deploy/index.js:79:5)
-[error] 
-[error] Error: An unexpected error has occurred.
-```
+The error message is clear, but the developers may expect `firebase deploy` to make such access rights enabling, automatically. This author thinks it happens for other access rights.
+
 
 ### Expected
 
-- If our code does something wrong, getting an error message with guidance.
+- I would see a line such that:
+
+   ```
+   functions: IAM role `cloudscheduler.jobs.update` added to [...]
+   ```
+   
+- ...and deployment would succeed
 
 ### Actual
 
-`TypeError: Cannot read properties of undefined (reading 'service')`?
+(above error message)
 
-Note: Above that error, there is a portion that may shine light to the problems:
+### Work-around
 
-```
-[{"severity":"ERROR","type":"CloudRunServiceNotFound","message":"Cloud Run service projects/abc-3011/locations/europe-north1/services/abc for the function was not found. The function will not work correctly. Please redeploy."}]
-```
+- GCP console > (project) > `IAM & Admin` > Principle `4569...-compute@developer.gserviceaccount.com` ("Default compute service account") > `Edit principle`
 
-Again, as a developer, I would like to see guidance, or for Firebase CLI to enable necessary access rights, as it does for many GCP details.
+   >![](.images/p2-which-role.png)
+
+   >Hmm.. not so easy to know which one is `cloudscheduler.jobs.update`
+
+Actually, based on the 403 error message, I don't know, how I can correct the situation.
+
+= likely there's a manual work-around, but it's not immediately obvious to an engineer working in the Firebase knowledge level.
+
+>Tried that it's not region specific. `"europe-west"` gives the same.
+
+
+## Why this matters?
+
+The developer experience should be consistent. Part of Firebase brand promise is that we need to steer less technical details than if working on GCP, directly.
+
+`firebase deploy` does this, for many access rights. For consistency, I hope the intention is that it handles things in all cases. Of course, there's no written commitment to this that I know of. Just "it seems to do things for me" - which I feel is the right way for initialization / deployments.
 
