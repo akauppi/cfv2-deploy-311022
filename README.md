@@ -1,4 +1,14 @@
-# Firebase tools on DC - bug repro
+# Cloud Functions v2, deployed with Docker 🌊
+
+Firebase "v2" Cloud Functions are in public preview (Oct 2022). This is a repo to try to make a scheduled function deploy, from within Docker Compose.
+
+Bugs noticed:
+
+- ["[Beta] `Cannot read properties of undefined (reading 'service')`, deploying a scheduled function (v2)"](https://github.com/firebase/firebase-functions/issues/1293)
+
+- Not reported:
+   - Process not exiting nicely, if `firebase-debug.log` is mapped, in Docker Compose. Gives `Error: An unexpected error has occurred.`
+ 
 
 ## Requirements
 
@@ -6,19 +16,12 @@
 
    >Google Analytics can be disabled.
 
-- Docker Desktop installed 
-- `npm` v.8
-- Node.js 16 or 18
+- Docker Desktop installed, and running
+- Node.js 16 or 18, `npm` 8
 
-## Problem
-
-`firebase deploy`, when run from under Docker Compose, and with `firebase-debug.log` mapped to the host
-
-- fails with the following, after a successful deploy:
-
-```
-Error: EBUSY: resource busy or locked, unlink '/work/firebase-debug.log'
-```
+<!--
+The repo is developed on macOS, but there shouldn't be anything OS specific.
+-->
 
 
 ## Steps
@@ -79,49 +82,14 @@ i  functions: cleaning up build files...
 
 Project Console: https://console.firebase.google.com/project/abc-3011/overview
 
-Error: An unexpected error has occurred.
-```
-
-The deployment succeeds, but exiting the process fails.
-
-More details are in `tmp/firebase-debug.log`:
-
-```
-$ tail -n 40 tmp/firebase-debug.log
 ...
-[info] i  functions: cleaning up build files... 
-[info] 
-[info] ✔  Deploy complete! 
-[info] 
-[info] Project Console: https://console.firebase.google.com/project/abc-3011/overview
-[debug] [2022-10-30T16:32:40.762Z] Error: EBUSY: resource busy or locked, unlink '/work/firebase-debug.log'
-    at Object.unlinkSync (node:fs:1767:3)
-    at process.<anonymous> (/usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/bin/firebase.js:84:12)
-    at process.emit (node:events:525:35)
-    at process.exit (node:internal/process/per_thread:190:15)
-    at /usr/local/share/.config/yarn/global/node_modules/firebase-tools/lib/command.js:105:25
-    at runMicrotasks (<anonymous>)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-[error] 
-[error] Error: An unexpected error has occurred.
 ```
-
-It should not be a problem for `firebase-tools`, returning to OS level, running under Docker (Alpine Linux image) and the log file having been mapped to host.
-
-**Work-around:**
-
-If one enables/disables the `firebase-debug.log` mapping in `docker-compose.yml` on a case-by-case basis, one can debug problems (line enabled) or deploy (line disabled).
-
-This is, however, very clumsy in practise.
-
-
-## Why this matters?
-
-It may be rare for people to deploy from a sandbox, but it's not an unreasonable use case.
-
-Normally, deployments are done in CI/CD also for this author (and this issue doesn't concern that). In this case, it's a question about onboarding new users to a repo, so they can be up and running as early as possible - doing first deployments without needing to set up CI/CD for it.
-
 
 ---
 
-With this fixed :), let's proceed to [PROBLEM 2](./PROBLEM-2.md).
+Depending on the state of the files, one or multiple problems may turn up..
+
+Proceed to:
+
+- [Not being able to deploy](./PROBLEM-2.md)
+- [Not exiting cleanly](./PROBLEM-1.md)
